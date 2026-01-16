@@ -1,324 +1,147 @@
 # Monday.com CRM Data Extractor
 
-A Chrome Extension that extracts data from Monday.com CRM boards (Contacts, Deals, Leads, Activities) and provides a beautiful dashboard to manage the extracted data locally.
+A Chrome Extension that extracts data from Monday.com CRM boards (Contacts, Deals, Leads, Activities) and provides a clean dashboard interface to manage the extracted data locally.
 
 ## Features
 
-- ✅ Extract data from 4 board types: Contacts, Deals, Leads, Activities
-- ✅ Support for grouped Deals (Active Deals, Closed Won, etc.)
-- ✅ Local data storage with deduplication
-- ✅ Beautiful React dashboard with Tailwind CSS
-- ✅ Search and filter functionality
-- ✅ Export to CSV or JSON
-- ✅ Real-time sync across browser tabs
-- ✅ Visual feedback with Shadow DOM
-- ✅ Persistent storage across sessions
+This extension allows you to extract data from four main board types: Contacts, Deals, Leads, and Activities. It supports grouped Deals with different stages like Active Deals and Closed Won. All extracted data is stored locally with automatic deduplication to prevent duplicate entries.
+
+The dashboard is built with React and Tailwind CSS, offering an intuitive interface for viewing your extracted data. You can search across all fields, filter records in real-time, and export your data to either CSV or JSON format. The extension provides real-time synchronization across multiple browser tabs and includes visual feedback when extracting data. All data persists across browser sessions.
 
 ## Installation
 
-### Method 1: Load Unpacked Extension (Development)
+### Load Unpacked Extension (Development Mode)
 
-1. Clone or download this repository:
+Start by cloning or downloading this repository:
+
 ```bash
 git clone https://github.com/yourusername/monday-crm-extractor.git
 cd monday-crm-extractor
 ```
 
-2. **No build step required!** The extension uses CDN React and works directly.
+The extension works directly without any build process since it uses CDN-based React. Open Chrome and navigate to `chrome://extensions/`, then enable Developer mode using the toggle in the top right corner. Click "Load unpacked" and select the project folder containing the `manifest.json` file. The extension icon should now appear in your toolbar.
 
-3. Open Chrome and navigate to `chrome://extensions/`
-
-4. Enable "Developer mode" (toggle in top right)
-
-5. Click "Load unpacked"
-
-6. Select the project folder (the folder containing `manifest.json`)
-
-7. The extension icon should appear in your toolbar!
-
-**Note:** Make sure you're on a Monday.com page when testing the extension.
-
-### Method 2: Install from Chrome Web Store (Production)
-
-Coming soon...
+Make sure you're on a Monday.com page when testing the extension for the first time.
 
 ## Usage
 
-### 1. Navigate to Monday.com
+### Navigating to Monday.com
 
-Go to your Monday.com CRM workspace and open any board:
-- Contacts board
-- Deals/Sales Pipeline board
-- Leads board
-- Activities board
+Open your Monday.com CRM workspace and navigate to any of the supported board types: Contacts, Deals or Sales Pipeline, Leads, or Activities.
 
-### 2. Extract Data
+### Extracting Data
 
-Click the extension icon in your toolbar and click the "Extract Current Board" button. The extension will:
-- Detect which board type you're viewing
-- Extract all visible data from the board
-- Save it locally with deduplication
-- Show a success notification
+Click the extension icon in your browser toolbar and then click the "Extract Current Board" button. The extension automatically detects which type of board you're currently viewing, extracts all visible data from that board, saves it locally while removing any duplicates, and displays a success notification when complete.
 
-### 3. View Dashboard
+### Viewing the Dashboard
 
-The popup dashboard shows all extracted data organized by tabs:
-- **Contacts**: Name, email, phone, account, title, owner
-- **Deals**: Name, value, stage, group, probability, close date, owner
-- **Leads**: Name, company, status, email, phone, owner
-- **Activities**: Type, subject, date, linked entities
+The popup dashboard organizes all your extracted data into separate tabs. The Contacts tab shows name, email, phone, account, title, and owner information. The Deals tab displays name, value, stage, group, probability, close date, and owner details. Leads include name, company, status, email, phone, and owner. Activities show the type, subject, date, and any linked entities.
 
-### 4. Search & Filter
+### Searching and Filtering
 
-Use the search bar to filter records across all fields in real-time.
+Use the search bar at the top of any tab to filter records. The search works across all fields and updates results in real-time as you type.
 
-### 5. Export Data
+### Exporting Data
 
-Click the "JSON" or "CSV" buttons to export the current board's data.
+Each tab has JSON and CSV export buttons. Click either button to download the current board's data in your preferred format.
 
-### 6. Delete Records
+### Managing Records
 
-Click the trash icon next to any record to remove it from local storage.
+Every record has a trash icon next to it. Click this icon to permanently remove that record from your local storage.
 
 ## Architecture
 
 ### Storage Schema
 
-```javascript
-{
-  "monday_data": {
-    "contacts": [
-      {
-        "id": "unique-id",
-        "name": "John Doe",
-        "email": "john@example.com",
-        "phone": "+1234567890",
-        "account": "Acme Corp",
-        "title": "CEO",
-        "owner": "Jane Smith",
-        "extractedAt": 1234567890
-      }
-    ],
-    "deals": [
-      {
-        "id": "unique-id",
-        "name": "Big Enterprise Deal",
-        "value": 50000,
-        "stage": "Negotiation",
-        "group": "Active Deals",
-        "probability": "75%",
-        "closeDate": "2024-12-31",
-        "owner": "Sales Rep",
-        "contact": "John Doe",
-        "extractedAt": 1234567890
-      }
-    ],
-    "leads": [...],
-    "activities": [...],
-    "lastSync": {
-      "contacts": 1234567890,
-      "deals": 1234567890,
-      "leads": null,
-      "activities": null
-    }
-  }
-}
-```
+The extension stores data in a structured format using Chrome's local storage API. Each board type maintains its own array of records with specific fields relevant to that type.
+
+For contacts, each record includes a unique ID, name, email, phone number, associated account, job title, owner, and a timestamp indicating when it was extracted.
+
+Deals store the deal name, monetary value, current stage, group classification, probability percentage, expected close date, assigned owner, associated contact, and extraction timestamp.
+
+Leads and activities follow similar patterns with their relevant fields. The storage also maintains a lastSync object tracking the most recent extraction time for each board type.
 
 ### DOM Selection Strategy
 
-Monday.com uses a component-based architecture with specific data attributes and class names. Our extraction strategy:
+Monday.com uses a component-based architecture with specific HTML attributes and CSS classes. The extension leverages these to reliably extract data.
 
-#### 1. Board Type Detection
-- Analyze URL patterns (`/boards/{id}`)
-- Check page title and board header
-- Look for specific board indicators
+#### Board Type Detection
 
-#### 2. Data Extraction Selectors
+The extension analyzes the current page URL pattern looking for board IDs, checks the page title and board header text, and searches for specific visual indicators that identify the board type.
 
-**Main Board Structure:**
-```javascript
-// Groups (for Deals)
-document.querySelectorAll('.board-group')
+#### Data Extraction Process
 
-// Group headers
-group.querySelector('.group-header-title')
+The main board structure is accessed through specific selectors. For grouped boards like Deals, the extension first identifies all groups using the board-group class. Within each group, it locates the header to determine the group name, then finds all rows marked with the board-row data attribute.
 
-// Rows
-document.querySelectorAll('.board-row[data-testid="board-row"]')
+Each row contains multiple cells, and the extension extracts values using different strategies depending on the column type. Status columns are identified by the status-label class, people or owner columns use the person-picker selector, dates are found with the date-text class, and numbers use the number-cell class. If none of these specific types match, the extension falls back to extracting the cell's text content.
 
-// Cells
-row.querySelectorAll('.board-cell')
-```
+#### Handling Different Views
 
-**Cell Value Extraction:**
-```javascript
-// Status columns
-cell.querySelector('.status-label')
+The extension primarily supports table view with its standard row-column structure. Kanban view support is planned as a future enhancement.
 
-// People/Owner columns
-cell.querySelector('.person-picker')
+#### Edge Cases
 
-// Date columns
-cell.querySelector('.date-text')
-
-// Number columns
-cell.querySelector('.number-cell')
-
-// Fallback
-cell.textContent.trim()
-```
-
-#### 3. Handling Different Views
-
-**Table View:** Standard row-column structure
-**Kanban View:** Card-based layout (bonus feature)
-
-#### 4. Edge Cases Handled
-- Empty cells return empty strings
-- Missing groups default to "Ungrouped"
-- Invalid numbers default to 0
-- Duplicate IDs are deduplicated on save
+The extraction logic handles several edge cases gracefully. Empty cells return empty strings rather than causing errors. If a board doesn't have groups, records are assigned to an "Ungrouped" category. Invalid or missing numbers default to zero. When duplicate IDs are detected during save operations, the newer record replaces the older one.
 
 ### Component Architecture
 
-```
-┌─────────────────────────────────────┐
-│         Service Worker              │
-│  (Background coordination)          │
-└────────────┬────────────────────────┘
-             │
-    ┌────────┴────────┐
-    │                 │
-    ▼                 ▼
-┌─────────┐      ┌──────────┐
-│ Content │      │  Popup   │
-│ Script  │      │Dashboard │
-│         │      │ (React)  │
-└────┬────┘      └────┬─────┘
-     │                │
-     ▼                ▼
-┌─────────────────────────┐
-│   chrome.storage.local  │
-│    (Persistent Data)    │
-└─────────────────────────┘
-```
+The extension consists of three main components working together. The service worker handles background coordination and message routing between components. The content script runs on Monday.com pages and performs the actual data extraction. The popup dashboard provides the React-based user interface for viewing and managing data.
+
+All components communicate through Chrome's messaging API and share data through chrome.storage.local, which provides persistent storage across browser sessions.
 
 ## Message Passing Flow
 
-1. **User clicks "Extract"** → Popup sends message to Service Worker
-2. **Service Worker** → Forwards to Content Script on active tab
-3. **Content Script** → Extracts data and returns to Service Worker
-4. **Service Worker** → Saves to chrome.storage.local
-5. **Storage Change Event** → Updates all open popups in real-time
+When you click the Extract button in the popup, it sends a message to the service worker. The service worker identifies the active Monday.com tab and forwards the extraction request to that tab's content script. The content script performs the extraction and returns the data back to the service worker. The service worker then saves the data to chrome.storage.local. Finally, any open popup windows detect the storage change and automatically update their display with the new data.
 
 ## Technical Stack
 
-- **Manifest V3**: Latest Chrome Extension format
-- **React 18**: UI framework
-- **Tailwind CSS**: Utility-first styling
-- **Lucide React**: Icon library
-- **Chrome APIs**: storage.local, tabs, runtime, scripting
-- **Shadow DOM**: Style isolation for page indicators
+The extension is built on Manifest V3, which is the latest Chrome Extension format. The user interface uses React 18 as the framework, styled with Tailwind CSS using a utility-first approach. Icons come from the Lucide React library. Chrome APIs provide storage through storage.local, tab management, runtime messaging, and script injection capabilities. Visual indicators on the page use Shadow DOM for style isolation.
 
 ## File Structure
 
-```
-monday-crm-extractor/
-├── manifest.json                 # Extension configuration
-├── README.md                     # This file
-├── popup/
-│   ├── popup.html               # Popup entry point
-│   ├── popup.js                 # React dashboard app
-│   └── popup.css                # Custom styles (if needed)
-├── content/
-│   ├── content.js               # Data extraction logic
-│   └── indicator.js             # Visual feedback component
-├── background/
-│   └── service-worker.js        # Background coordination
-├── utils/
-│   ├── storage.js               # Storage management
-│   └── helpers.js               # Utility functions
-└── assets/
-    ├── icon16.png
-    ├── icon48.png
-    └── icon128.png
-```
+The project is organized into several directories. The root contains manifest.json which configures the extension, and this README file. The popup directory holds popup.html as the entry point, popup.js containing the React dashboard application, and an optional popup.css for custom styles.
+
+Content scripts live in the content directory, with content.js handling data extraction logic and indicator.js managing visual feedback components. The background directory contains service-worker.js for background coordination. Utility functions are organized in the utils directory with storage.js managing storage operations and helpers.js providing general utility functions. Extension icons of various sizes are stored in the assets directory.
 
 ## Development
 
 ### Prerequisites
-- Chrome/Chromium browser (latest version recommended)
-- Monday.com account with CRM access
-- No Node.js or build tools required - extension works directly!
 
-### Project Structure
-The extension uses:
-- **CDN React** - No bundling needed, React loads from CDN
-- **TailwindCSS CDN** - Styling via CDN
-- **Vanilla JavaScript** - Content scripts and service worker
-- **Chrome APIs** - Storage, messaging, tabs
+You'll need a recent version of Chrome or Chromium browser and a Monday.com account with access to CRM features. Unlike many modern extensions, this one doesn't require Node.js or any build tools since it works directly with CDN-hosted libraries.
 
-### Testing
-1. Create test boards in Monday.com with sample data
-2. Load the extension in Chrome
-3. Test extraction on each board type
-4. Verify data persistence after page refresh
-5. Test search, filter, and delete functionality
+### Project Structure Details
 
-### Debugging
-- Open Chrome DevTools for popup: Right-click extension icon → Inspect popup
-- View service worker logs: chrome://extensions → Service worker
-- Content script console: Regular page DevTools console
+The extension loads React from a CDN, eliminating the need for bundling or compilation. TailwindCSS also comes from a CDN for styling. Content scripts and the service worker use vanilla JavaScript for maximum compatibility. All browser integration relies on standard Chrome APIs for storage, messaging, and tab management.
+
+### Testing Approach
+
+Create several test boards in your Monday.com workspace with sample data representing different scenarios. Load the extension into Chrome in developer mode. Test the extraction functionality on each supported board type, verifying that the data appears correctly in the dashboard. Refresh the browser and confirm that all data persists properly. Finally, test the search functionality, filtering options, and record deletion to ensure everything works as expected.
+
 
 ## Known Limitations
 
-- Requires manual trigger (not automatic background sync)
-- Extracts only visible data (no pagination handling in base version)
-- DOM selectors may break if Monday.com updates their structure
-- No API integration (DOM scraping only)
+The extension requires you to manually trigger data extraction rather than running automatic background syncs. It only extracts data that's currently visible on the page and doesn't handle pagination in the base version. The DOM selectors used for extraction may break if Monday.com significantly updates their HTML structure. The extension works through DOM scraping rather than API integration, which limits its reliability compared to official API access.
 
 ## Future Enhancements
 
-- [ ] Automatic background sync on schedule
-- [ ] Handle infinite scroll/pagination
-- [ ] Export to Excel (.xlsx)
-- [ ] Kanban view extraction
-- [ ] Advanced filtering and sorting
-- [ ] Data analytics dashboard
-- [ ] Sync with external databases
+Planned improvements include automatic background synchronization on a configurable schedule, intelligent handling of infinite scroll and paginated content, Excel export functionality, support for extracting data from Kanban view layouts, more sophisticated filtering and sorting options, a comprehensive analytics dashboard, and the ability to sync data with external databases or services.
 
 ## Troubleshooting
 
-**Extension doesn't appear:**
-- Check that Developer Mode is enabled in chrome://extensions
-- Verify all files are in correct locations
+If the extension doesn't appear in your toolbar, verify that Developer Mode is enabled in chrome://extensions and check that all project files are in their correct locations according to the file structure outlined above.
 
-**Extraction fails:**
-- Ensure you're on a Monday.com CRM board page
-- Check if Monday.com updated their DOM structure
-- Open DevTools console to see error messages
+When extraction fails, first ensure you're on an actual Monday.com CRM board page rather than a settings or home page. Consider whether Monday.com might have recently updated their interface structure, which could break the DOM selectors. Open the browser's DevTools console to look for any error messages that might indicate what went wrong.
 
-**Data not persisting:**
-- Check chrome://extensions for any errors
-- Verify storage permissions in manifest.json
+If data isn't persisting between sessions, check chrome://extensions for any error messages related to the extension. Also verify that the storage permissions are correctly specified in the manifest.json file.
 
 ## Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Contributions to this project are welcome. Please fork the repository, create a new feature branch for your changes, implement your improvements or fixes, and submit a pull request with a clear description of what you've changed and why.
 
 ## License
 
-MIT License - feel free to use and modify
-
-## Demo Video
-
-[Link to demo video showing extraction, dashboard, and all features]
+This project is released under the MIT License, which means you're free to use and modify it for your own purposes.
 
 ## Contact
 
-For questions or issues, please open a GitHub issue or contact [your email].
+For questions, bug reports, or feature requests, please open an issue on the GitHub repository.
