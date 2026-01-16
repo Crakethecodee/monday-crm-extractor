@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create PNG Icons - Fix Extension Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #0073ea; margin-top: 0; }
+        button {
+            background: #0073ea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button:hover { background: #005bb5; }
+        .success { background: #00c875; }
+        .success:hover { background: #00a862; }
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-left: 4px solid #0073ea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix Extension Icons</h1>
+        <p>Click the button below to create all required PNG icon files.</p>
+        
+        <button onclick="createAllIcons()">📥 Create All Icons (icon16.png, icon48.png, icon128.png)</button>
+        
+        <div id="status" style="margin-top: 20px; padding: 10px; border-radius: 6px; display: none;"></div>
+        
+        <div class="info">
+            <strong>After creating icons:</strong>
+            <ol>
+                <li>Save the downloaded PNG files in your <code>assets</code> folder</li>
+                <li>Go back to <code>manifest.json</code> and uncomment the icon sections</li>
+                <li>Reload your extension in Chrome</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function createIcon(size, filename) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Monday.com blue gradient background
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#0073ea');
+                gradient.addColorStop(1, '#005bb5');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // White database icon (three circles)
+                ctx.fillStyle = 'white';
+                const centerX = size / 2;
+                const centerY = size / 2;
+                const radius = size * 0.25;
+                const spacing = size * 0.15;
+                
+                // Draw three circles (database symbol)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY - spacing, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY + spacing, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw arrow (extraction indicator)
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = Math.max(2, size / 16);
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                const arrowSize = size * 0.15;
+                const arrowX = size * 0.75;
+                const arrowY = centerY;
+                
+                ctx.beginPath();
+                ctx.moveTo(arrowX - arrowSize, arrowY - arrowSize/2);
+                ctx.lineTo(arrowX, arrowY);
+                ctx.lineTo(arrowX - arrowSize, arrowY + arrowSize/2);
+                ctx.stroke();
+                
+                // Convert to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    resolve();
+                }, 'image/png');
+            });
+        }
+        
+        async function createAllIcons() {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.style.background = '#fff3cd';
+            status.style.color = '#856404';
+            status.textContent = 'Creating icons...';
+            
+            try {
+                await createIcon(16, 'icon16.png');
+                await new Promise(r => setTimeout(r, 300));
+                await createIcon(48, 'icon48.png');
+                await new Promise(r => setTimeout(r, 300));
+                await createIcon(128, 'icon128.png');
+                
+                status.style.background = '#d4edda';
+                status.style.color = '#155724';
+                status.innerHTML = '✅ <strong>Success!</strong> All icons created and downloaded.<br><br>Next steps:<br>1. Move PNG files to assets folder<br>2. Update manifest.json to include icons<br>3. Reload extension in Chrome';
+            } catch (error) {
+                status.style.background = '#f8d7da';
+                status.style.color = '#721c24';
+                status.textContent = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+

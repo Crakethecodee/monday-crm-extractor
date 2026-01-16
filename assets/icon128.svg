@@ -1,0 +1,17 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad128" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0073ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#005bb5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" fill="url(#grad128)" rx="8"/>
+  <!-- Database cylinders -->
+  <circle cx="64" cy="42" r="16" fill="white"/>
+  <circle cx="64" cy="64" r="16" fill="white"/>
+  <circle cx="64" cy="86" r="16" fill="white"/>
+  <!-- Extraction arrow -->
+  <path d="M 92 52 L 108 64 L 92 76" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+

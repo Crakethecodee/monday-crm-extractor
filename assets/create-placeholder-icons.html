@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create PNG Icons - Emergency Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #0073ea; }
+        button {
+            background: #0073ea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { background: #005bb5; }
+        .instructions {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Emergency Icon Generator</h1>
+        <p>This will create PNG icons directly in your browser - no external tools needed!</p>
+        
+        <button onclick="createAllIcons()">📥 Create All PNG Icons Now</button>
+        
+        <div class="instructions">
+            <h3>What this does:</h3>
+            <ol>
+                <li>Creates icon16.png (16x16)</li>
+                <li>Creates icon48.png (48x48)</li>
+                <li>Creates icon128.png (128x128)</li>
+                <li>Downloads all three files</li>
+            </ol>
+            <p><strong>After downloading:</strong> Save the PNG files in your <code>assets</code> folder, then reload the extension in Chrome.</p>
+        </div>
+    </div>
+
+    <script>
+        function createIcon(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#0073ea');
+            gradient.addColorStop(1, '#005bb5');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw database cylinders
+            ctx.fillStyle = 'white';
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.25;
+            const spacing = size * 0.15;
+            
+            // Top circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - spacing, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Middle circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bottom circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY + spacing, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw arrow
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = Math.max(2, size / 16);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const arrowSize = size * 0.15;
+            const arrowX = size * 0.75;
+            const arrowY = centerY;
+            
+            ctx.beginPath();
+            ctx.moveTo(arrowX - arrowSize, arrowY - arrowSize/2);
+            ctx.lineTo(arrowX, arrowY);
+            ctx.lineTo(arrowX - arrowSize, arrowY + arrowSize/2);
+            ctx.stroke();
+            
+            // Download
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+        
+        function createAllIcons() {
+            setTimeout(() => createIcon(16, 'icon16.png'), 100);
+            setTimeout(() => createIcon(48, 'icon48.png'), 300);
+            setTimeout(() => createIcon(128, 'icon128.png'), 500);
+            
+            setTimeout(() => {
+                alert('✅ All icons created! Check your downloads folder.\n\nNext steps:\n1. Move PNG files to the assets folder\n2. Reload extension in Chrome');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+

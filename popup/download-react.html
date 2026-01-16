@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Download React Files</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #0073ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005bb5;
+        }
+
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Download React Files for Extension</h1>
+    <p>Click buttons to download React files. Save them in the <code>popup/lib/</code> folder.</p>
+
+    <div class="info">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Click each button to download the file</li>
+            <li>Create a folder: <code>popup/lib/</code></li>
+            <li>Save all downloaded files there</li>
+            <li>The extension will use local files instead of CDN</li>
+        </ol>
+    </div>
+
+    <button onclick="downloadFile('https://unpkg.com/react@18/umd/react.production.min.js', 'react.min.js')">Download
+        React</button>
+    <button
+        onclick="downloadFile('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js', 'react-dom.min.js')">Download
+        ReactDOM</button>
+    <button onclick="downloadFile('https://unpkg.com/@babel/standalone/babel.min.js', 'babel.min.js')">Download
+        Babel</button>
+
+    <div id="status" style="margin-top: 20px; padding: 10px; border-radius: 5px; display: none;"></div>
+
+    <script>
+        async function downloadFile(url, filename) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.style.background = '#fff3cd';
+            status.textContent = `Downloading ${filename}...`;
+
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(downloadUrl);
+
+                status.style.background = '#d4edda';
+                status.textContent = `✅ Downloaded ${filename}`;
+            } catch (error) {
+                status.style.background = '#f8d7da';
+                status.textContent = `❌ Error downloading ${filename}: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

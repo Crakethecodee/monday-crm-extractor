@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "Monday.com CRM Data Extractor",
+    "version": "1.0.0",
+    "description": "Extract and manage CRM data from Monday.com boards",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://*.monday.com/*"
+    ],
+    "action": {
+        "default_popup": "popup/popup-simple.html"
+    },
+    "background": {
+        "service_worker": "background/service-worker.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.monday.com/*"
+            ],
+            "js": [
+                "content/indicator.js",
+                "content/content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "assets/*"
+            ],
+            "matches": [
+                "https://*.monday.com/*"
+            ]
+        }
+    ]
+}
